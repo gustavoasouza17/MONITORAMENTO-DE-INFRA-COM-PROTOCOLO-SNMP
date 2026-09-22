@@ -5,10 +5,7 @@ import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.*;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class GatilhoAlarme {
+public class GatilhoAlarme1 {
 
     // Define o limite crítico (ex: 70% de uso da memória alocada)
     private static final double LIMITE_USO_MEMORIA = 70.0;
@@ -66,6 +63,6 @@ public class GatilhoAlarme {
     }
 
     public static void main(String[] args) throws Exception {
-        new GatilhoAlarme().monitorarRecursos();
+        new GatilhoAlarme1().monitorarRecursos();
     }
 }
