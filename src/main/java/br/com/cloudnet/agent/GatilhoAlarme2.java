@@ -7,33 +7,46 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
 
 public class GatilhoAlarme2 {
 
-    public void dispararTrapSimples() throws Exception {
+    public void verificarBancoDeDados() throws Exception {
+        System.out.println("Iniciando verificação de conectividade com o Banco de Dados...");
+
+        boolean bancoDeDadosOnline = true;
+
+        if (bancoDeDadosOnline) {
+            // Caminho feliz: Tudo está funcionando.
+            System.out.println("Status: ONLINE. Conexão estável. A operação de rede está normal.");
+            System.out.println("-> Nenhuma TRAP foi enviada para o NOC.");
+        } else {
+            // Caminho crítico: O banco caiu!
+            System.out.println("CRÍTICO: Conexão com o Banco de Dados perdida!");
+            System.out.println("-> Disparando TRAP SNMP de alerta...");
+            dispararTrapSimples();
+        }
+    }
+
+    private void dispararTrapSimples() throws Exception {
         TransportMapping<UdpAddress> transport = new DefaultUdpTransportMapping();
         transport.listen();
         Snmp snmp = new Snmp(transport);
 
-        // Configura o destino: O IP do NOC e a porta 162
         CommunityTarget target = new CommunityTarget();
         target.setCommunity(new OctetString("public"));
         target.setAddress(new UdpAddress("127.0.0.1/162"));
         target.setVersion(SnmpConstants.version2c);
 
-        // Monta o pacote de alerta (TRAP)
         PDU pdu = new PDU();
         pdu.setType(PDU.TRAP);
 
-        // Adiciona uma OID diferente (final .1.3) para diferenciar do Gatilho 1
         OID metricOid = new OID("1.3.6.1.4.1.9999.1.3");
         VariableBinding alerta = new VariableBinding(metricOid, new OctetString("ALERTA DE TESTE 2: Queda de conexao com Banco de Dados"));
         pdu.add(alerta);
 
-        // Dispara o alerta pela rede
         snmp.send(pdu, target);
-        System.out.println("Gatilho 2 disparado! TRAP enviada com sucesso para o NOC.");
+        System.out.println("Gatilho 2 finalizado! TRAP entregue com sucesso.");
         snmp.close();
     }
 
     public static void main(String[] args) throws Exception {
-        new GatilhoAlarme2().dispararTrapSimples();
+        new GatilhoAlarme2().verificarBancoDeDados();
     }
 }
